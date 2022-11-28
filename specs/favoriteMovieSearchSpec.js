@@ -4,6 +4,7 @@ import FavoriteMovieIdb from '../src/scripts/data/favorite-movie-idb';
 
 describe('Searching movies', () => {
   let presenter;
+  let favoriteMovies;
 
   const searchMovies = (query) => {
     const queryElement = document.getElementById('query');
@@ -24,9 +25,9 @@ describe('Searching movies', () => {
   };
 
   const constructPresenter = () => {
-    spyOn(FavoriteMovieIdb, 'searchMovies');
+    favoriteMovies = spyOnAllFunctions(FavoriteMovieIdb);
     presenter = new FavoriteMovieSearchPresenter({
-      favoriteMovies: FavoriteMovieIdb,
+      favoriteMovies,
     });
   };
 
@@ -46,7 +47,7 @@ describe('Searching movies', () => {
     it('should ask the model to search for movies', () => {
       searchMovies('film a');
 
-      expect(FavoriteMovieIdb.searchMovies)
+      expect(favoriteMovies.searchMovies)
         .toHaveBeenCalledWith('film a');
     });
 
@@ -92,7 +93,7 @@ describe('Searching movies', () => {
           done();
         });
 
-      FavoriteMovieIdb.searchMovies.withArgs('film a').and.returnValues([
+      favoriteMovies.searchMovies.withArgs('film a').and.returnValues([
         { id: 111, title: 'film abc' },
         { id: 222, title: 'ada juga film abcde' },
         { id: 333, title: 'ini juga boleh film a' },
@@ -111,7 +112,7 @@ describe('Searching movies', () => {
         done();
       });
 
-      FavoriteMovieIdb.searchMovies.withArgs('film a').and.returnValues([
+      favoriteMovies.searchMovies.withArgs('film a').and.returnValues([
         { id: 111, title: 'film abc' },
         { id: 222, title: 'ada juga film abcde' },
         { id: 333, title: 'ini juga boleh film a' },
@@ -132,6 +133,12 @@ describe('Searching movies', () => {
 
         searchMovies('\t');
         expect(presenter.latestQuery.length).toEqual(0);
+      });
+
+      it('should show all favorite movies', () => {
+        searchMovies('    ');
+        expect(favoriteMovies.getAllMovies)
+          .toHaveBeenCalled();
       });
     });
   });
